@@ -1,0 +1,46 @@
+services:
+  # Our database service, what we've started all of this for
+  # https://hub.docker.com/_/couchdb
+  couchdb:
+    image: couchdb:3.5
+    container_name: couchdb
+    restart: unless-stopped
+    environment:
+      - COUCHDB_USER=${COUCHDB_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+    volumes:
+      # I prefer to externalise Docker volumes (use bind mount) rather
+      # than keep somewhere deep in `/var/lib/docker`
+      - ./data/couchdb:/opt/couchdb/data
+    networks:
+      - couchdb_network
+
+  # Note how `couchdb` doesn't expose any ports? That's because
+  # we don't want to expose CouchDB directly to the internet
+  # and instead we'll use Caddy - fast and configurable reverse
+  # proxy which makes many things a lot more simple.
+  # https://hub.docker.com/_/caddy
+  caddy:
+    image: caddy:2.10-alpine
+    # image: caddy-namesilo:2.10
+    # build:
+    #   context: ./docker/caddy/
+    #   dockerfile: Dockerfile
+    container_name: caddy
+    restart: unless-stopped
+    environment:
+      - SERVER_HOST=${SERVER_HOST}
+      - SERVER_PORT=${SERVER_PORT}
+    #   - NAMESILO_API_TOKEN=${NAMESILO_API_TOKEN}
+    volumes:
+      - ./data/caddy/data:/data
+      - ./data/caddy/config:/config
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - couchdb_network
+    ports:
+      - "5984:5984"
+
+networks:
+  couchdb_network:
+    driver: bridge

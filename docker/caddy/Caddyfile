@@ -1,0 +1,22 @@
+# I could not find a meaningful way to externalise
+# the hostname and the port here!
+{$SERVER_HOST:localhost}:{$SERVER_PORT:5984} {
+    reverse_proxy couchdb:5984
+    tls internal
+    header {
+        Access-Control-Allow-Origin "app://obsidian.md"
+
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        Access-Control-Allow-Credentials "true"
+        Access-Control-Max-Age 86400
+    }
+
+    @cors_preflight {
+        method OPTIONS
+        header Origin app://obsidian.md
+    }
+    handle @cors_preflight {
+        respond "OK" 204
+    }
+}
