@@ -8,6 +8,7 @@ services:
     environment:
       - COUCHDB_USER=${COUCHDB_USER}
       - COUCHDB_PASSWORD=${COUCHDB_PASSWORD}
+      - COUCHDB_DATABASE=${COUCHDB_DATABASE}
     volumes:
       # I prefer to externalise Docker volumes (use bind mount) rather
       # than keep somewhere deep in `/var/lib/docker`
